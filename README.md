@@ -1,2 +1,3 @@
 # emunation
-Emulation of units relation. PyGame
+Emulation of simple units relation. PyGame.
+Born -> Grow -> -> Fight -> Job -> Death
