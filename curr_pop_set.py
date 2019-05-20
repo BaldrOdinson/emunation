@@ -43,7 +43,29 @@ def curr_pop_params(units_list, day_no):
         curr_pop_dict['females'] = females
         curr_pop_dict['pregnant'] = pregnant
         curr_pop_dict['money'] = money
+        if day_no%365 == 0:
+            yearly_report(units_list, day_no)
     else:
-        print('Конец. Все умерли. Протянули {day_no} дней.')
+        print(f'Конец. Все умерли. Протянули {day_no} дней.')
 
     return curr_pop_dict
+
+def yearly_report(units_list, day_no):
+    family_mem_count = {}
+    family_rich_count = {}
+    for unit in units_list:
+        if unit.family in family_mem_count:
+            family_mem_count[unit.family] += 1
+        else:
+            family_mem_count[unit.family] = 1
+        if unit.family in family_rich_count:
+            family_rich_count[unit.family] += unit.rich
+        else:
+            family_rich_count[unit.family] = unit.rich
+    print(f'--------------- Годовой отчет за {day_no/365} год ---------------')
+    for family, count in family_mem_count.items():
+        print(f'В семье {family} \t{count} человек')
+    print('~~~~~~~~~~~~~~      ~~~~~~~~~~~~~~      ~~~~~~~~~~~~~~')
+    for family, richness in family_rich_count.items():
+        print(f'Состояние семьи {family} \tсоставляет \t{round(richness, 2)}')
+    print('-----------------------------------------------------------------')

@@ -41,7 +41,10 @@ def unit_growing_up(unit):
         unit.mind -= 1/365
     elif unit.age > 80*365:
         unit.mind -= 2/365
-
+    #  Возрастной размер
+    size_coef = (unit.age + 365)// 3650
+    unit.width = size_coef
+    unit.height = size_coef
     return unit
 
 

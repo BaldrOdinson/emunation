@@ -17,7 +17,7 @@ info_string = pygame.Surface((map_x, 30))
 
 # програмная отрисовка юнита
 class NationUnit(pygame.sprite.Sprite):
-    def __init__(self, xpos, ypos, color, width, height):
+    def __init__(self, xpos, ypos, color, width, height, family='Snow'):
         # coding
         global unitno
         self.unitno = unitno
@@ -27,6 +27,7 @@ class NationUnit(pygame.sprite.Sprite):
         self.width = width
         self.height = height
         self.color = color
+        self.family = family
     # Пол
         if randint(0, 1) == 0:
             self.sex = 'Male'
@@ -42,18 +43,21 @@ class NationUnit(pygame.sprite.Sprite):
         self.active = True
         self.last_direction = 9
         self.rich = 0
-        self.image = pygame.Surface([width, height])
+        self.image = pygame.Surface([self.width, self.height])
         self.image.fill((255, 255, 255))
         self.image.set_colorkey((255, 255, 255))
         # draw
-        pygame.draw.rect(self.image, color, [0, 0, width, height])
+        pygame.draw.rect(self.image, color, [0, 0, self.width, self.height])
         # fetch
         self.rect = self.image.get_rect()
 
     def render(self):
+        self.image = pygame.Surface([self.width, self.height])
+        pygame.draw.rect(self.image, self.color, [0, 0, self.width, self.height])
         screen.blit(self.image, (self.x, self.y))
 
     def __str__(self):
-        return f'Unit ID: {self.unitno}\nCurrent position: {self.x}, {self.y}\n'+\
-                f'Sex: {self.sex},\t Age: {round(int(self.age)/365, 2)}\tHealth: {self.health}\n'+\
-                f'Размер: {self.width}x{self.height}'
+        return f'#################### {self.unitno} {self.family} ####################\n'+\
+                f'Sex: {self.sex},\t Age: {round(int(self.age)/365, 2)}\tHealth: {round(self.health, 2)}\tStrength: {round(self.strength, 2)}\tAgression: {round(self.agression, 2)}\n'+\
+                f'Rich {round(self.rich, 2)}, Child: {len(self.child)}\n'+\
+                f'##################################################'

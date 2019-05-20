@@ -12,10 +12,10 @@ def start_preg(unit, other_unit):
     Проверяем подходят ли юниты для размножения и если да, то Female делаем беременной
     '''
     if unit.sex != other_unit.sex:
-        # репродуктивный возраст от 18 до 60
+        # репродуктивный возраст от 18 до 50
         if (unit.age > 6570 and other_unit.age > 6570
-            and unit.age < 21900 and other_unit.age < 21900):
-            # Разница в возрасте не более 10 лет
+            and unit.age < 18250 and other_unit.age < 18250):
+            # Разница в возрасте не более 10 лет, в частности чтобы не налететь на семейное дело инцест
             if abs(unit.age - other_unit.age) <= 3650:
                 # Здоровье не менее 50
                 if unit.health > 50 and other_unit.health > 50:
@@ -26,7 +26,7 @@ def start_preg(unit, other_unit):
                         mother = other_unit
                         father = unit
                     # мать в данный момент не беременна и у нее, как и у отца, уже не более 5 детей
-                    if not mother.pregnancy and len(mother.child) < 5 and len(father.child) < 5:
+                    if not mother.pregnancy and len(mother.child) < 3 and len(father.child) < 3:
                         start_preg_unit(mother, father)
                         return True
     return False
@@ -96,16 +96,17 @@ def childbirth(unit):
     new_child_travaler = randint(child_travaler_min, child_travaler_max)
 
 # Роды
-    new_unit = NationUnit(xpos=unit.x+5, ypos=unit.y+5, color=new_child_color, width=unit.width, height=unit.height)
+    new_unit = NationUnit(xpos=unit.x+5, ypos=unit.y+5, color=new_child_color, width=1, height=1)
     new_unit.health = new_child_health
     new_unit.travaler = new_child_travaler
     new_unit.mother = unit
     new_unit.father = unit.child_father[-1]
+    new_unit.family = unit.child_father[-1].family
     new_unit.age = 0
     new_unit.moving_coef = 0
     new_unit.agression = randint(0, 5)
-    new_unit.strength = randint(0, 5)
-    new_unit.mind = randint(0, (unit.mind+unit.child_father[-1].mind)//20)
+    new_unit.strength = randint(0, (unit.strength+unit.child_father[-1].strength)//4)
+    new_unit.mind = randint(0, (unit.mind+unit.child_father[-1].mind)//4)
 
     # Обнуление беременности
     unit.pregnancy = False

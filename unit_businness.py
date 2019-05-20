@@ -1,5 +1,7 @@
 from random import randint
 from math import trunc
+from units_class import map_x, map_y
+import emu_settings
 
 def unit_salary(unit):
     '''
@@ -79,9 +81,9 @@ def unit_food(unit, food_price):
                 unit.health -= 0.01 * unit.agression/50
     return unit
 
-def unit_health_care(unit, health_care, day_no):
+def unit_health_care(unit, health_care, gov_money):
     '''
-    Определяем шанс и стоимость мед.обслуживания
+    Определяем шанс и стоимость мед.обслуживания для улучшения здоровья
     '''
     # print(f'unit.rich: {unit.rich}, health_care: {health_care}')
     if health_care < 1:
@@ -94,7 +96,7 @@ def unit_health_care(unit, health_care, day_no):
     # Стоимость 1 пункта лечения
     health_care_point_price = unit.rich/100
     # Если выпал шанс полечится
-    curr_hospital_point = randint(1, 300)
+    curr_hospital_point = randint(1, 1000)
     # print(f'curr_hospital_point: {curr_hospital_point}, medicine_chance: {medicine_chance}')
     if curr_hospital_point <= medicine_chance:
         # Сколько пунктов будет залечено
@@ -104,5 +106,66 @@ def unit_health_care(unit, health_care, day_no):
             # Оплата лечения
             h_c_price = h_c_point_available * health_care_point_price
             unit.rich -= h_c_price
-            print(f'~~~ На {day_no} день {unit.unitno} посетил больничку и подлечился на {h_c_point_available} за {round(h_c_price, 2)}. Теперь здоровье {round(unit.health, 2)}, а денег {round(unit.rich, 2)}')
-    return unit
+            gov_money += h_c_price
+            # LOGS
+            if emu_settings.log_type == 'short':
+                emu_settings.day_log_msg += 'H'
+            elif emu_settings.log_type == 'long':
+                emu_settings.day_log_msg += f'\n~~~ {unit.unitno} {unit.family} посетил больничку и подлечился на {h_c_point_available} за {round(h_c_price, 2)}. Теперь здоровье {round(unit.health, 2)}, а денег {round(unit.rich, 2)}'
+    return unit, gov_money
+
+def unit_vacation(unit, gov_money):
+    '''
+    Шанс для активного юнита отправиться в отпуск, для сброса агрессии
+    Дальность поездки 1-450
+    Стоимость 0.01 состояния за единицу сбрасываемой агрессии
+    Сколько агресии сбрасывается определяется от 0 до 100 или текущей агресии, если она ниже
+    '''
+    agression_coef = 1 + unit.agression//50
+    if randint(1, 1000//agression_coef) <= 1 and unit.agression > 50:
+        vac_distance = randint(1, 450)
+        if unit.agression < 100:
+            agr_reset_max = trunc(unit.agression)
+        else:
+            agr_reset_max = 100
+        agr_reset = randint(1, agr_reset_max)
+        # расчет стоимости
+        vac_cost = agr_reset * unit.rich/100
+        # print(f'Агрессия до отпуска {unit.agression}')
+        unit.agression -= agr_reset
+        unit.rich -= vac_cost
+        gov_money += vac_cost
+        unit.x += vac_distance
+        # перемещение, для смены обстановки, новые люди, места
+        if unit.x > map_x:
+            unit.x -=  map_x
+        unit.y += vac_distance
+        if unit.y > map_y:
+            unit.y -=  map_y
+        # LOGS
+        if emu_settings.log_type == 'short':
+            emu_settings.day_log_msg += 'V'
+        elif emu_settings.log_type == 'long':
+            emu_settings.day_log_msg += f'\n^^^ {unit.unitno} {unit.family} сгонял в отпуск. Сбросил {agr_reset} аргессии за {round(vac_cost, 2)}. Теперь агр: {round(unit.agression, 2)}, денег {round(unit.rich, 2)}'
+
+
+def unit_legacy(dead_unit, gov_money):
+    '''
+    Расчет наследства.
+    Состояние распределяется между детьми
+    '''
+    curr_legacy = dead_unit.rich
+    heirs = dead_unit.child
+    heirs_num = len(heirs)
+    if heirs_num > 0:
+        heir_part = curr_legacy/heirs_num
+        legacy_message = f'Наследство по {round(heir_part, 2)} получили: '
+        for child_unit in heirs:
+            legacy_message += f'{child_unit.unitno} {child_unit.family} '
+            # rich_before = child_unit.rich
+            child_unit.rich += heir_part
+            # print(f'Наследство для юнита {child_unit.unitno}: до {rich_before}, после {child_unit.rich}')
+    else:
+        legacy_message = f'Наследников не обнаружено'
+        gov_money += curr_legacy
+    return legacy_message, gov_money
