@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, choice
 from units_class import NationUnit
 
 def start_preg_unit(unit, father):
@@ -72,6 +72,17 @@ def childbirth(unit):
     new_child_color = (randint(r_child_color_min, r_child_color_max),
                         randint(g_child_color_min, g_child_color_max),
                         randint(b_child_color_min, b_child_color_max))
+    # 1% шанса мутации
+    if randint(1, 100) <=1:
+        mutation_color = choice(['r', 'g', 'b'])
+        mutation_direction = int(choice(['0', '255']))
+        if mutation_color == 'r':
+            new_child_color[0] = mutation_direction
+        elif mutation_color == 'g':
+            new_child_color[1] = mutation_direction
+        else:
+            new_child_color[2] = mutation_direction
+        print(f'Мутация: цвет {mutation_color} {mutation_direction} -> {new_child_color}')
     # Здоровье
     child_health = (unit.health + unit.child_father[-1].health)//2
     if child_health - 5 <= 0:

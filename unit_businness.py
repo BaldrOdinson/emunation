@@ -149,23 +149,42 @@ def unit_vacation(unit, gov_money):
             emu_settings.day_log_msg += f'\n^^^ {unit.unitno} {unit.family} сгонял в отпуск. Сбросил {agr_reset} аргессии за {round(vac_cost, 2)}. Теперь агр: {round(unit.agression, 2)}, денег {round(unit.rich, 2)}'
 
 
-def unit_legacy(dead_unit, gov_money):
+def unit_legacy(dead_unit, units_list, gov_money):
     '''
     Расчет наследства.
     Состояние распределяется между детьми
     '''
+    def legacy_spread(heirs, curr_legacy):
+        '''
+        Распределение оставшегося состояния
+        '''
+        heirs_num = len(heirs)
+        if heirs_num > 0:
+            heir_part = curr_legacy/heirs_num
+            legacy_message = f'Наследство по {round(heir_part, 2)} получили: '
+            for child_unit in heirs:
+                legacy_message += f'{child_unit.unitno} {child_unit.family} '
+                # rich_before = child_unit.rich
+                child_unit.rich += heir_part
+        return legacy_message
+
     curr_legacy = dead_unit.rich
     heirs = dead_unit.child
-    heirs_num = len(heirs)
-    if heirs_num > 0:
-        heir_part = curr_legacy/heirs_num
-        legacy_message = f'Наследство по {round(heir_part, 2)} получили: '
-        for child_unit in heirs:
-            legacy_message += f'{child_unit.unitno} {child_unit.family} '
-            # rich_before = child_unit.rich
-            child_unit.rich += heir_part
-            # print(f'Наследство для юнита {child_unit.unitno}: до {rich_before}, после {child_unit.rich}')
+    family_heirs = []
+    if len(heirs) > 0:
+        # Наследникам - детям
+        legacy_message = legacy_spread(heirs, curr_legacy)
     else:
-        legacy_message = f'Наследников не обнаружено'
-        gov_money += curr_legacy
+        # Наследникам - семье
+        # print(f'Наследство для юнита {child_unit.unitno}: до {rich_before}, после {child_unit.rich}')
+        legacy_message = f'Наследников не обнаружено, деньги уходят членам семьи: '
+        for unit in units_list:
+            if dead_unit != unit and unit.family == dead_unit.family:
+                family_heirs.append(unit)
+        if len(family_heirs) > 0:
+            legacy_fam_message = legacy_spread(family_heirs, curr_legacy)
+            legacy_message += legacy_fam_message
+        else:
+            legacy_message = f'Наследников вообще нет, деньги уходят государству.'
+            gov_money += curr_legacy
     return legacy_message, gov_money

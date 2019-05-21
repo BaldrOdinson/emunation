@@ -75,7 +75,7 @@ while done:
         if unit_death(unit):
             dead_units.append(unit)
             # Наследство
-            legacy_message, gov_money = unit_legacy(unit, gov_money)
+            legacy_message, gov_money = unit_legacy(unit, units_list, gov_money)
         # беременность
         if unit.pregnancy:
             if unit.pregnancy_day < 275:
