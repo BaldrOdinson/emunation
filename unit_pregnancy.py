@@ -26,7 +26,7 @@ def start_preg(unit, other_unit):
                         mother = other_unit
                         father = unit
                     # мать в данный момент не беременна и у нее, как и у отца, уже не более 5 детей
-                    if not mother.pregnancy and len(mother.child) < 3 and len(father.child) < 3:
+                    if not mother.pregnancy and len(mother.child) < 4 and len(father.child) < 4:
                         start_preg_unit(mother, father)
                         return True
     return False
@@ -77,11 +77,11 @@ def childbirth(unit):
         mutation_color = choice(['r', 'g', 'b'])
         mutation_direction = int(choice(['0', '255']))
         if mutation_color == 'r':
-            new_child_color[0] = mutation_direction
+            new_child_color = (mutation_direction, new_child_color[1], new_child_color[2])
         elif mutation_color == 'g':
-            new_child_color[1] = mutation_direction
+            new_child_color = (new_child_color[0], mutation_direction, new_child_color[2])
         else:
-            new_child_color[2] = mutation_direction
+            new_child_color = (new_child_color[0], new_child_color[1], mutation_direction)
         print(f'Мутация: цвет {mutation_color} {mutation_direction} -> {new_child_color}')
     # Здоровье
     child_health = (unit.health + unit.child_father[-1].health)//2

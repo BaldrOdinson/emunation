@@ -1,4 +1,5 @@
 from random import randint, random
+from pygame import Rect
 
 def unit_growing_up(unit):
     '''
@@ -49,6 +50,7 @@ def unit_growing_up(unit):
         size_coef = (unit.age + 365)// 3650
     unit.width = size_coef
     unit.height = size_coef
+    unit.rect = Rect(unit.rect.x, unit.rect.y, unit.width, unit.height)
     return unit
 
 

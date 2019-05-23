@@ -22,71 +22,103 @@ def unit_move(unit):
         move_direction = randint(1, 9)
     unit.last_direction = move_direction
     speed = unit.moving_coef
+    # xvel and yvel горизонтальная и вертикальная скорости.
+    # при столкновении будем менять их вектор.
+    # по идее должно будет меняться направление.
     # N
     if move_direction == 1:
-        if unit.y > 0:
-            unit.y -= 1 * speed
-        elif unit.y == 0:
-            unit.y = map_y
+        unit.yvel = -1
+        if unit.rect.y > 0:
+            unit.rect.y += unit.yvel * speed
+        elif unit.rect.y <= 0:
+            unit.rect.y = map_y
+            # unit.rect.y -= unit.yvel * speed
     # N-O
     elif move_direction == 2:
-        if unit.x < map_x:
-            unit.x += 1 * speed
-        elif unit.x == map_x:
-            unit.x = 0
-        if unit.y > 0:
-            unit.y -= 1 * speed
-        elif unit.y == 0:
-            unit.y = map_y
+        unit.xvel = 1
+        unit.yvel = -1
+        if unit.rect.x < map_x:
+            unit.rect.x += unit.xvel * speed
+        elif unit.rect.x >= map_x:
+            unit.rect.x = 0
+            # unit.rect.x += unit.xvel * speed
+        if unit.rect.y > 0:
+            unit.rect.y += unit.yvel * speed
+        elif unit.rect.y <= 0:
+            unit.rect.y = map_y
+            # unit.rect.y -= unit.yvel * speed
     # O
     elif move_direction == 3:
-        if unit.x < map_x:
-            unit.x += 1 * speed
-        elif unit.x == map_x:
-            unit.x = 0
+        unit.xvel = 1
+        if unit.rect.x < map_x:
+            unit.rect.x += unit.xvel * speed
+        elif unit.rect.x >= map_x:
+            unit.rect.x = 0
+            # unit.rect.x += unit.xvel * speed
     # S-O
     elif move_direction == 4:
-        if unit.x < map_x:
-            unit.x += 1 * speed
-        elif unit.x == map_x:
-            unit.x = 0
-        if unit.y < map_y:
-            unit.y += 1 * speed
-        elif unit.y == map_y:
-            unit.y = 0
+        unit.xvel = 1
+        unit.yvel = 1
+        if unit.rect.x < map_x:
+            unit.rect.x += unit.xvel * speed
+        elif unit.rect.x >= map_x:
+            unit.rect.x = 0
+            # unit.rect.x += unit.xvel * speed
+        if unit.rect.y < map_y:
+            unit.rect.y += unit.yvel * speed
+        elif unit.rect.y >= map_y:
+            unit.rect.y = 0
+            # unit.rect.y += unit.yvel * speed
     # S
     elif move_direction == 5:
-        if unit.y < map_y:
-            unit.y += 1 * speed
-        elif unit.y == map_y:
-            unit.y = 0
+        unit.yvel = 1
+        if unit.rect.y < map_y:
+            unit.rect.y += unit.yvel * speed
+        elif unit.rect.y >= map_y:
+            unit.rect.y = 0
+            # unit.rect.y += unit.yvel * speed
     # S-W
     elif move_direction == 6:
-        if unit.x > 0:
-            unit.x -= 1 * speed
-        elif unit.x == 0:
-            unit.x = map_x
-        if unit.y < map_y:
-            unit.y += 1 * speed
-        elif unit.y == map_y:
-            unit.y = 0
+        unit.xvel = -1
+        unit.yvel = 1
+        if unit.rect.x > 0:
+            unit.rect.x += unit.xvel * speed
+        elif unit.rect.x <= 0:
+            unit.rect.x = map_x
+            # unit.rect.x -= unit.xvel * speed
+        if unit.rect.y < map_y:
+            unit.rect.x += unit.xvel * speed
+        elif unit.rect.y >= map_y:
+            unit.rect.y = 0
+            # unit.rect.x -= unit.xvel * speed
     # W
     elif move_direction == 7:
-        if unit.x > 0:
-            unit.x -= 1 * speed
-        elif unit.x == 0:
-            unit.x = map_x
+        unit.xvel = -1
+        if unit.rect.x > 0:
+            unit.rect.x += unit.xvel * speed
+        elif unit.rect.x == 0:
+            unit.rect.x = map_x
+            # unit.rect.x -= unit.xvel * speed
     # N-W
     elif move_direction == 8:
-        if unit.x > 0:
-            unit.x -= 1 * speed
-        elif unit.x == 0:
-            unit.x = map_x
-        if unit.y > 0:
-            unit.y -= 1 * speed
-        elif unit.y == 0:
-            unit.y = map_y
+        unit.xvel = -1
+        unit.yvel = -1
+        if unit.rect.x > 0:
+            unit.rect.x += unit.xvel * speed
+        elif unit.rect.x == 0:
+            unit.rect.x = map_x
+            # unit.rect.x -= unit.xvel * speed
+        if unit.rect.y > 0:
+            unit.rect.y += unit.yvel * speed
+        elif unit.rect.y == 0:
+            unit.rect.y = map_y
+            # unit.rect.y -= unit.yvel * speed
     # No unit_moving
     elif move_direction == 9:
         pass
     return unit
+
+def unit_rebound(unit):
+    speed = unit.moving_coef
+    unit.rect.x += unit.xvel * speed
+    unit.rect.y += unit.yvel * speed

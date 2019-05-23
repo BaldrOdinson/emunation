@@ -147,6 +147,7 @@ def unit_vacation(unit, gov_money):
             emu_settings.day_log_msg += 'V'
         elif emu_settings.log_type == 'long':
             emu_settings.day_log_msg += f'\n^^^ {unit.unitno} {unit.family} сгонял в отпуск. Сбросил {agr_reset} аргессии за {round(vac_cost, 2)}. Теперь агр: {round(unit.agression, 2)}, денег {round(unit.rich, 2)}'
+    return unit, gov_money
 
 
 def unit_legacy(dead_unit, units_list, gov_money):

@@ -4,6 +4,7 @@ import pygame
 import numpy as np
 from start_units import units_start_pul
 from units_class import window, screen, info_string, map_x, map_y
+from menu_class import Menu
 from curr_pop_set import curr_pop_params
 from units_age import unit_growing_up, unit_death
 from unit_pregnancy import start_preg, childbirth
@@ -12,8 +13,12 @@ from use_thread import ProcessingThread
 from unit_businness import unit_food, unit_health_care, unit_legacy
 import emu_settings
 
-day_no = 0
+# day_no = 0
 units_list = []
+m_down = (0, 0)
+gov_money = emu_settings.gov_money
+food_price = emu_settings.food_price
+health_care = emu_settings.health_care
 
 # Класс юнитов задается в units_class
 
@@ -21,16 +26,16 @@ units_list = []
 pygame.font.init()                              # Инициализация шрифтов
 info_font = pygame.font.SysFont('Ubuntu', 12)
 
+# MENU
+# Создание меню
+items = [(120, 130, u'Game', (250, 250, 30), (250, 30, 250), 0),
+            (120, 210, u'Quit', (250, 250, 30), (250, 30, 250), 1)]
+game = Menu(items)
+# Вызов меню
+game.menu()
+
 #Описания юнитов
 units_list = units_start_pul()
-
-# внешние переменные
-food_price = 0
-health_care = 100
-gov_money = 0
-# может быть short или long
-# log_type = 'short'
-# day_log_msg = 'На {day_no} день произошло: '
 
 # ИГРОВОЙ ЦИКЛ
 done = True                                     # Пока true игровой цикл отрабатывается
@@ -46,25 +51,27 @@ while done:
             # По правой кнопке печатаем инфо о юните
             if e.button == 3:
                 for unit in units_list:
-                    if unit.x < m_down[0] < unit.x + unit.width:
+                    if unit.rect.x < m_down[0] < unit.rect.x + unit.width:
                         # 30 - высота меню
-                        if unit.y < m_down[1] - 30 < unit.y + unit.height:
+                        if unit.rect.y < m_down[1] - 30 < unit.rect.y + unit.height:
                             print(unit)
-        if e.type == pygame.MOUSEBUTTONUP:
+        if e.type == pygame.MOUSEBUTTONUP and m_down != (0, 0):
             m_up = pygame.mouse.get_pos()
             # print(f'mouse window: ({m_down[0]}, {m_down[1]} : {m_up[0]}, {m_up[1]})')
             if e.button == 1:
                 for unit in units_list:
-                    if unit.x > m_down[0] and unit.x + unit.width < m_up[0]:
+                    if unit.rect.x > m_down[0] and unit.rect.x + unit.width < m_up[0]:
                         # 30 - высота меню
-                        if unit.y > m_down[1] - 30 and unit.y + unit.height < m_up[1] - 30:
+                        if unit.rect.y > m_down[1] - 30 and unit.rect.y + unit.height < m_up[1] - 30:
                             print(unit)
-
-
+        if e.type == pygame.KEYDOWN:
+            # Вызов меню
+            if e.key == pygame.K_ESCAPE:
+                game.menu()
 
 
     # Действия
-    day_no += 1
+    # day_no += 1
     emu_settings.day_no += 1
     dead_units = []
     born_units = []
@@ -124,7 +131,7 @@ while done:
 
 
     # Базовые параметры населения
-    curr_pop_dict = curr_pop_params(units_list, day_no)
+    curr_pop_dict = curr_pop_params(units_list, emu_settings.day_no)
 
     # отрисовка объектов
     for unit in units_list:
@@ -135,8 +142,8 @@ while done:
     info_string.blit(info_font.render(f'Беременных: {curr_pop_dict["pregnant"]}', 1, (204, 204, 204)), (5, 15))
     info_string.blit(info_font.render(f'Мужчин: {curr_pop_dict["males"]}', 1, (204, 204, 204)), (130, 0))
     info_string.blit(info_font.render(f'Женщин: {curr_pop_dict["females"]}', 1, (204, 204, 204)), (130, 15))
-    info_string.blit(info_font.render(f'День: {day_no}', 1, (204, 204, 204)), (230, 0))
-    info_string.blit(info_font.render(f'Год: {day_no//365}', 1, (204, 204, 204)), (230, 15))
+    info_string.blit(info_font.render(f'День: {emu_settings.day_no}', 1, (204, 204, 204)), (230, 0))
+    info_string.blit(info_font.render(f'Год: {emu_settings.day_no//365}', 1, (204, 204, 204)), (230, 15))
     info_string.blit(info_font.render(f'Ср.ум: {curr_pop_dict["average_mind"]}', 1, (204, 204, 204)), (320, 15))
     info_string.blit(info_font.render(f'Ср.агрессия: {curr_pop_dict["average_agression"]}', 1, (204, 204, 204)), (320, 0))
     info_string.blit(info_font.render(f'Ср.возраст: {curr_pop_dict["average_age"]}', 1, (204, 204, 204)), (460, 0))
